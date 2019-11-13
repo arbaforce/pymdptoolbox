@@ -166,6 +166,19 @@ class MDP(object):
         The time used to converge to the optimal policy.
     verbose : boolean
         Whether verbose output should be displayed or not.
+    return_numbers : list(int)
+        The list of the non optimal policy and value we want to be return to 
+        the user
+    policy_specified_history : list([double])
+        Where the specified non optimal policy are stored
+    value_specified_history : list([double])
+        Where the specified non optimal value are stored
+    policy_curve : list(int)
+        Describe how the policy evolved during the computation by giving the
+        amount of differences between each policy table and the optimal one
+    value_curve : list(double)
+        Describe how the value evolved during the computation by giving the
+        mean squared difference between each value table and the optimal one
 
     Methods
     -------
@@ -180,7 +193,7 @@ class MDP(object):
     """
 
     def __init__(self, transitions, reward, discount, epsilon, max_iter,
-                 skip_check=False):
+                 skip_check=False, return_numbers=()):
         # Initialise a MDP based on the input parameters.
 
         # if the discount is None then the algorithm is assumed to not use it
@@ -206,6 +219,9 @@ class MDP(object):
         if epsilon is not None:
             self.epsilon = float(epsilon)
             assert self.epsilon > 0, "Epsilon must be greater than 0."
+            
+        # the policy that must be return
+        self.return_numbers = return_numbers
 
         if not skip_check:
             # We run a check on P and R to make sure they are describing an
@@ -227,6 +243,11 @@ class MDP(object):
         self.V = None
         # policy can also be stored as a vector
         self.policy = None
+        
+        self.policy_specified_history=[]
+        self.value_specified_history=[]
+        self.policy_curve=[]
+        self.value_curve=[]
 
     def __repr__(self):
         P_repr = "P: \n"
@@ -618,12 +639,12 @@ class PolicyIteration(MDP):
     """
 
     def __init__(self, transitions, reward, discount, policy0=None,
-                 max_iter=1000, eval_type=0, skip_check=False):
+                 max_iter=1000, eval_type=0, skip_check=False, return_numbers=()):
         # Initialise a policy iteration MDP.
         #
         # Set up the MDP, but don't need to worry about epsilon values
         MDP.__init__(self, transitions, reward, discount, None, max_iter,
-                     skip_check=skip_check)
+                     skip_check=skip_check, return_numbers=return_numbers)
         # Check if the user has supplied an initial policy. If not make one.
         if policy0 is None:
             # Initialise the policy to the one which maximises the expected
@@ -801,6 +822,9 @@ class PolicyIteration(MDP):
     def run(self):
         # Run the policy iteration algorithm.
         self._startRun()
+        
+        policy_history = []
+        value_history = []
 
         while True:
             self.iter += 1
@@ -812,8 +836,8 @@ class PolicyIteration(MDP):
                 self._evalPolicyIterative()
             # This should update the classes policy attribute but leave the
             # value alone
-            policy_next, null = self._bellmanOperator()
-            del null
+            policy_next, V_next = self._bellmanOperator()
+            
             # calculate in how many places does the old policy disagree with
             # the new policy
             n_different = (policy_next != self.policy).sum()
@@ -832,6 +856,24 @@ class PolicyIteration(MDP):
                 break
             else:
                 self.policy = policy_next
+                self.V = V_next
+                policy_history.append(self.policy)
+                value_history.append(self.V)
+        
+        for i in range(self.iter-1):
+            nb_differences = 0;
+            for j in range(self.S):
+                if not policy_history[i][j] == self.policy[j]:
+                    nb_differences += 1
+            self.policy_curve.append(nb_differences)
+            
+            squared_difference = _np.square(value_history[i]-self.V)
+            self.value_curve.append(squared_difference)
+            
+            
+        for i in self.return_numbers:
+            self.policy_specified_history.append(policy_history[i])
+            self.value_specified_history.append(value_history[i])
 
         self._endRun()
 
@@ -1421,6 +1463,9 @@ class ValueIteration(MDP):
     def run(self):
         # Run the value iteration algorithm.
         self._startRun()
+        
+        policy_history = []
+        value_history = []
 
         while True:
             self.iter += 1
@@ -1429,6 +1474,8 @@ class ValueIteration(MDP):
 
             # Bellman Operator: compute policy and value functions
             self.policy, self.V = self._bellmanOperator()
+            policy_history.append(self.policy)
+            value_history.append(self.V)
 
             # The values, based on Q. For the function "max()": the option
             # "axis" means the axis along which to operate. In this case it
@@ -1446,6 +1493,21 @@ class ValueIteration(MDP):
                 if self.verbose:
                     print(_MSG_STOP_MAX_ITER)
                 break
+            
+        for i in range(self.iter-1):
+            nb_differences = 0;
+            for j in range(self.S):
+                if not policy_history[i][j] == self.policy[j]:
+                    nb_differences += 1
+            self.policy_curve.append(nb_differences)
+            
+            squared_difference = _np.square(value_history[i]-self.V)
+            self.value_curve.append(squared_difference)
+            
+            
+        for i in self.return_numbers:
+            self.policy_specified_history.append(policy_history[i])
+            self.value_specified_history.append(value_history[i])
 
         self._endRun()
 
