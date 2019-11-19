@@ -872,8 +872,11 @@ class PolicyIteration(MDP):
             
             
         for i in self.return_numbers:
-            self.policy_specified_history.append(policy_history[i])
-            self.value_specified_history.append(value_history[i])
+            if i < self.iter-2:
+                self.policy_specified_history.append(policy_history[i])
+                self.value_specified_history.append(value_history[i])
+            else:
+                break;
 
         self._endRun()
 
@@ -1506,8 +1509,11 @@ class ValueIteration(MDP):
             
             
         for i in self.return_numbers:
-            self.policy_specified_history.append(policy_history[i])
-            self.value_specified_history.append(value_history[i])
+            if i < self.iter-2:
+                self.policy_specified_history.append(policy_history[i])
+                self.value_specified_history.append(value_history[i])
+            else:
+                break;
 
         self._endRun()
 
