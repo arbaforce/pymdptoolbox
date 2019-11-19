@@ -57,6 +57,7 @@ Available classes
 
 import math as _math
 import time as _time
+import sys
 
 import numpy as _np
 import scipy.sparse as _sp
@@ -840,13 +841,18 @@ class PolicyIteration(MDP):
             
             # calculate in how many places does the old policy disagree with
             # the new policy
-            n_different = (policy_next != self.policy).sum()
+            min_n_different = sys.maxsize
+            for p in policy_history:
+                n_different = (policy_next != self.policy).sum()
+                if n_different < min_n_different:
+                    min_n_different = n_different
+                
             # if verbose then continue printing a table
             if self.verbose:
                 _printVerbosity(self.iter, n_different)
             # Once the policy is unchanging of the maximum number of
             # of iterations has been reached then stop
-            if n_different == 0:
+            if min_n_different == 0:
                 if self.verbose:
                     print(_MSG_STOP_UNCHANGING_POLICY)
                 break
@@ -861,10 +867,7 @@ class PolicyIteration(MDP):
                 value_history.append(self.V)
         
         for i in range(self.iter-1):
-            nb_differences = 0;
-            for j in range(self.S):
-                if not policy_history[i][j] == self.policy[j]:
-                    nb_differences += 1
+            nb_differences = (policy_history[i] != self.policy).sum()
             self.policy_curve.append(nb_differences)
             
             mean_squared_difference = _np.mean(_np.square(value_history[i]-self.V))
@@ -1498,10 +1501,7 @@ class ValueIteration(MDP):
                 break
             
         for i in range(self.iter-1):
-            nb_differences = 0;
-            for j in range(self.S):
-                if not policy_history[i][j] == self.policy[j]:
-                    nb_differences += 1
+            nb_differences = (policy_history[i] != self.policy).sum()
             self.policy_curve.append(nb_differences)
             
             mean_squared_difference = _np.mean(_np.square(value_history[i]-self.V))
