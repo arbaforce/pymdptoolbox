@@ -1068,15 +1068,13 @@ class QLearning(MDP):
     """
 
     def __init__(self, transitions, reward, discount, n_iter=10000,
-                 skip_check=False, return_numbers=()):
+                 skip_check=False):
         # Initialise a Q-learning MDP.
 
         # The following check won't be done in MDP()'s initialisation, so let's
         # do it here
         self.max_iter = int(n_iter)
         assert self.max_iter >= 10000, "'n_iter' should be greater than 10000."
-        
-        self.return_numbers = return_numbers
 
         if not skip_check:
             # We don't want to send this to MDP because _computePR should not
@@ -1395,11 +1393,11 @@ class ValueIteration(MDP):
     """
 
     def __init__(self, transitions, reward, discount, epsilon=0.01,
-                 max_iter=1000, initial_value=0, skip_check=False):
+                 max_iter=1000, initial_value=0, skip_check=False, return_numbers=())):
         # Initialise a value iteration MDP.
 
         MDP.__init__(self, transitions, reward, discount, epsilon, max_iter,
-                     skip_check=skip_check)
+                     skip_check=skip_check, return_numbers = return_numbers)
 
         # initialization of optional arguments
         if initial_value == 0:
