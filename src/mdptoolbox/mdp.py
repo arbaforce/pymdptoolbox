@@ -1068,13 +1068,15 @@ class QLearning(MDP):
     """
 
     def __init__(self, transitions, reward, discount, n_iter=10000,
-                 skip_check=False):
+                 skip_check=False, return_numbers=()):
         # Initialise a Q-learning MDP.
 
         # The following check won't be done in MDP()'s initialisation, so let's
         # do it here
         self.max_iter = int(n_iter)
         assert self.max_iter >= 10000, "'n_iter' should be greater than 10000."
+        
+        self.return_numbers = return_numbers
 
         if not skip_check:
             # We don't want to send this to MDP because _computePR should not
