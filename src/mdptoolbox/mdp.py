@@ -850,7 +850,7 @@ class PolicyIteration(MDP):
                 if self.verbose:
                     print(_MSG_STOP_UNCHANGING_POLICY)
                 break
-            elif self.iter == self.max_iter:
+            elif self.iter > self.max_iter:
                 if self.verbose:
                     print(_MSG_STOP_MAX_ITER)
                 break
@@ -1489,7 +1489,7 @@ class ValueIteration(MDP):
                 if self.verbose:
                     print(_MSG_STOP_EPSILON_OPTIMAL_POLICY)
                 break
-            elif self.iter == self.max_iter:
+            elif self.iter > self.max_iter:
                 if self.verbose:
                     print(_MSG_STOP_MAX_ITER)
                 break
