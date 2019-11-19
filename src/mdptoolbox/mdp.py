@@ -1393,7 +1393,7 @@ class ValueIteration(MDP):
     """
 
     def __init__(self, transitions, reward, discount, epsilon=0.01,
-                 max_iter=1000, initial_value=0, skip_check=False, return_numbers=())):
+                 max_iter=1000, initial_value=0, skip_check=False, return_numbers=()):
         # Initialise a value iteration MDP.
 
         MDP.__init__(self, transitions, reward, discount, epsilon, max_iter,
