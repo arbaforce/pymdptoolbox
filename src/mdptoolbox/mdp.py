@@ -843,7 +843,7 @@ class PolicyIteration(MDP):
             # the new policy
             min_n_different = sys.maxsize
             for p in policy_history:
-                n_different = (policy_next != self.policy).sum()
+                n_different = (policy_next != p).sum()
                 if n_different < min_n_different:
                     min_n_different = n_different
                 
