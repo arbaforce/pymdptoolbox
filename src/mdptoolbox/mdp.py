@@ -1139,9 +1139,9 @@ class QLearning(MDP):
             s_new = 0
             a = 0
             
-            p = 0;
-            state = 0
             for action in range(self.A):
+                p = 0;
+                state = 0
                 while (p < 1) and (state < self.S):
                     if self.P[action][s, state] != 0:
                         p += self.P[action][s, state]
