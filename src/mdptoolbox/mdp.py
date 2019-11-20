@@ -1170,6 +1170,7 @@ class QLearning(MDP):
 
             # current state is updated
             s = s_new
+            print(s_new)
 
             # Computing and saving maximal values of the Q variation
             discrepancy.append(_np.absolute(dQ))
