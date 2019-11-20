@@ -1105,10 +1105,10 @@ class QLearning(MDP):
 
         self.time = _time.time()
 
-        # initial state choice
-        s = _np.random.randint(0, self.S)
 
         for n in range(1, self.max_iter + 1):
+            # initial state choice
+            s = _np.random.randint(0, self.S)
 
 #            # Action choice : greedy with increasing probability
 #            # probability 1-(1/log(n+2)) can be changed
@@ -1135,50 +1135,51 @@ class QLearning(MDP):
 #                except IndexError:
 #                    r = self.R[s]
             
-            r_max = -sys.maxsize - 1
-            s_new = 0
-            a = 0
-            
-            for action in range(self.A):
-                p = 0;
-                state = 0
-                while (p < 1) and (state < self.S):
-                    if self.P[action][s, state] != 0:
-                        p += self.P[action][s, state]
-                        r = 0
-                        
-                        try:
-                            r = self.R[action][s, state]
-                        except IndexError:
+            for i in range(100):
+                r_max = -sys.maxsize - 1
+                s_new = 0
+                a = 0
+                
+                for action in range(self.A):
+                    p = 0;
+                    state = 0
+                    while (p < 1) and (state < self.S):
+                        if self.P[action][s, state] != 0:
+                            p += self.P[action][s, state]
+                            r = 0
+                            
                             try:
-                                r = self.R[s, action]
+                                r = self.R[action][s, state]
                             except IndexError:
-                                r = self.R[s]
-                        
-                        if r_max < r:
-                            r_max = r
-                            s_new = state
-                            a = action
-                    state += 1
-                        
-
-            # Updating the value of Q
-            # Decaying update coefficient (1/sqrt(n+2)) can be changed
-            delta = r_max + self.discount * self.Q[s_new, :].max() - self.Q[s, a]
-            dQ = self.lr * delta
-            self.Q[s, a] = self.Q[s, a] + dQ
-
-            # current state is updated
-            s = s_new
-            print(s_new)
-
-            # Computing and saving maximal values of the Q variation
-            discrepancy.append(_np.absolute(dQ))
-
-            # Computing means all over maximal Q variations values
-            if len(discrepancy) == 100:
-                self.mean_discrepancy.append(_np.mean(discrepancy))
-                discrepancy = []
+                                try:
+                                    r = self.R[s, action]
+                                except IndexError:
+                                    r = self.R[s]
+                            
+                            if r_max < r:
+                                r_max = r
+                                s_new = state
+                                a = action
+                        state += 1
+                            
+    
+                # Updating the value of Q
+                # Decaying update coefficient (1/sqrt(n+2)) can be changed
+                delta = r_max + self.discount * self.Q[s_new, :].max() - self.Q[s, a]
+                dQ = self.lr * delta
+                self.Q[s, a] = self.Q[s, a] + dQ
+    
+                # current state is updated
+                s = s_new
+                print(s_new)
+    
+                # Computing and saving maximal values of the Q variation
+                discrepancy.append(_np.absolute(dQ))
+    
+                # Computing means all over maximal Q variations values
+                if len(discrepancy) == 100:
+                    self.mean_discrepancy.append(_np.mean(discrepancy))
+                    discrepancy = []
 
             # compute the value function and the policy
             self.V = self.Q.max(axis=1)
