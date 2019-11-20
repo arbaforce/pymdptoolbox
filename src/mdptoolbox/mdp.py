@@ -1147,7 +1147,7 @@ class QLearning(MDP):
                     p += self.P[a][s, state]
                     
                     try:
-                        r = self.R[a][s, s_new]
+                        r = self.R[a][s, state]
                     except IndexError:
                         try:
                             r = self.R[s, a]
