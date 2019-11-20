@@ -1077,7 +1077,6 @@ class QLearning(MDP):
         # The following check won't be done in MDP()'s initialisation, so let's
         # do it here
         self.max_iter = int(n_iter)
-        assert self.max_iter >= 10000, "'n_iter' should be greater than 10000."
 
         if not skip_check:
             # We don't want to send this to MDP because _computePR should not
@@ -1171,7 +1170,6 @@ class QLearning(MDP):
     
                 # current state is updated
                 s = s_new
-                print(s_new)
     
                 # Computing and saving maximal values of the Q variation
                 discrepancy.append(_np.absolute(dQ))
