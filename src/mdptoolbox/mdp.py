@@ -1137,26 +1137,29 @@ class QLearning(MDP):
             
             r_max = -sys.maxsize - 1
             s_new = 0
-            a = self.Q[s, :].argmax()
+            a = 0
             
             p = 0;
             state = 0
-            while (p < 1) and (state < self.S):
-                if self.P[a][s, state] != 0:
-                    p += self.P[a][s, state]
-                    
-                    try:
-                        r = self.R[a][s, state]
-                    except IndexError:
+            for action in range(self.A):
+                while (p < 1) and (state < self.S):
+                    if self.P[action][s, state] != 0:
+                        p += self.P[action][s, state]
+                        r = 0
+                        
                         try:
-                            r = self.R[s, a]
+                            r = self.R[action][s, state]
                         except IndexError:
-                            r = self.R[s]
-                    
-                    if r_max < r:
-                        r_max = r
-                        s_new = state
-                state += 1
+                            try:
+                                r = self.R[s, action]
+                            except IndexError:
+                                r = self.R[s]
+                        
+                        if r_max < r:
+                            r_max = r
+                            s_new = state
+                            a = action
+                    state += 1
                         
 
             # Updating the value of Q
