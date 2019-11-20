@@ -1134,50 +1134,63 @@ class QLearning(MDP):
 #                except IndexError:
 #                    r = self.R[s]
             
-            for i in range(100):
-                r_max = -sys.maxsize - 1
-                s_new = 0
-                a = 0
-                
-                for action in range(self.A):
-                    p = 0;
-                    state = 0
-                    while (p < 1) and (state < self.S):
-                        if self.P[action][s, state] != 0:
-                            p += self.P[action][s, state]
-                            r = 0
+#            for i in range(100):
+#                r_max = -sys.maxsize - 1
+#                s_new = 0
+#                a = 0
+#                
+#                for action in range(self.A):
+#                    p = 0;
+#                    state = 0
+#                    while (p < 1) and (state < self.S):
+#                        if self.P[action][s, state] != 0:
+#                            p += self.P[action][s, state]
+#                            r = 0
+#                            
+#                            try:
+#                                r = self.R[action][s, state]
+#                            except IndexError:
+#                                try:
+#                                    r = self.R[s, action]
+#                                except IndexError:
+#                                    r = self.R[s]
+#                            
+#                            if r_max < r:
+#                                r_max = r
+#                                s_new = state
+#                                a = action
+#                        state += 1
                             
-                            try:
-                                r = self.R[action][s, state]
-                            except IndexError:
-                                try:
-                                    r = self.R[s, action]
-                                except IndexError:
-                                    r = self.R[s]
-                            
-                            if r_max < r:
-                                r_max = r
-                                s_new = state
-                                a = action
-                        state += 1
-                            
     
-                # Updating the value of Q
-                # Decaying update coefficient (1/sqrt(n+2)) can be changed
-                delta = r_max + self.discount * self.Q[s_new, :].max() - self.Q[s, a]
-                dQ = self.lr * delta
-                self.Q[s, a] = self.Q[s, a] + dQ
-    
-                # current state is updated
-                s = s_new
-    
-                # Computing and saving maximal values of the Q variation
-                discrepancy.append(_np.absolute(dQ))
-    
-                # Computing means all over maximal Q variations values
-                if len(discrepancy) == 100:
-                    self.mean_discrepancy.append(_np.mean(discrepancy))
-                    discrepancy = []
+            Q2 = self.Q[s,:] + _np.random.randn(1, self.A)*(1. / (n+1))
+            a = _np.argmax(Q2)
+            try:
+                s_new = self.R[a][s, :].argmax()
+                r_max = self.R[a][s, s_new]
+            except IndexError:
+                try:
+                    s_new = s
+                    r_max = self.R[s, a]
+                except IndexError:
+                    s_new = s
+                    r_max = self.R[s]
+            
+            # Updating the value of Q
+            # Decaying update coefficient (1/sqrt(n+2)) can be changed
+            delta = r_max + self.discount * self.Q[s_new, :].max() - self.Q[s, a]
+            dQ = self.lr * delta
+            self.Q[s, a] = self.Q[s, a] + dQ
+
+            # current state is updated
+            s = s_new
+
+            # Computing and saving maximal values of the Q variation
+            discrepancy.append(_np.absolute(dQ))
+
+            # Computing means all over maximal Q variations values
+            if len(discrepancy) == 100:
+                self.mean_discrepancy.append(_np.mean(discrepancy))
+                discrepancy = []
 
             # compute the value function and the policy
             self.V = self.Q.max(axis=1)
