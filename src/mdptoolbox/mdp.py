@@ -1173,17 +1173,23 @@ class QLearning(MDP):
                     a = _np.random.randint(self.A) # Explore action space
                 else:
                     a = _np.argmax(self.Q[s,:]) # Exploit learned values
+                
+                p_state = _np.random.uniform(0, 1)
+                p = 0
+                state_nb = 0
+                while p < p_state and state_nb < self.S:
+                    p += self.P[a][s, state_nb]
+                    s_new = state_nb
+                    state_nb += 1
                     
+                
                 try:
-                    s_new = self.R[a][s, :].argmax()
                     r_max = self.R[a][s, s_new]
                 except IndexError:
                     try:
-                        s_new = s
-                        r_max = self.R[s, a]
+                        r_max = self.R[s_new, a]
                     except IndexError:
-                        s_new = s
-                        r_max = self.R[s]
+                        r_max = self.R[s_new]
                 
                 # Updating the value of Q
                 # Decaying update coefficient (1/sqrt(n+2)) can be changed
