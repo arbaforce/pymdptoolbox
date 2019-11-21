@@ -1070,13 +1070,14 @@ class QLearning(MDP):
 
     """
 
-    def __init__(self, transitions, reward, discount, n_iter=10000,
+    def __init__(self, transitions, reward, discount, n_episodes=1000, n_iter=1000
                  skip_check=False, learning_rate=0.1, epsilon = 0.1, exploration = 'exploiting'):
         # Initialise a Q-learning MDP.
 
         # The following check won't be done in MDP()'s initialisation, so let's
         # do it here
         self.max_iter = int(n_iter)
+        self.n_episodes = int(n_episodes)
 
         if not skip_check:
             # We don't want to send this to MDP because _computePR should not
@@ -1106,8 +1107,8 @@ class QLearning(MDP):
 
         self.time = _time.time()
 
-
-        for n in range(1, self.max_iter + 1):
+    
+        for n in range(1, self.n_episodes + 1):
             # initial state choice
             s = _np.random.randint(0, self.S)
 
@@ -1167,38 +1168,38 @@ class QLearning(MDP):
 #            Q2 = self.Q[s,:] + _np.random.randn(1, self.A)*(1. / (n+1))
 #            a = _np.argmax(Q2)
             
-            if _np.random.uniform(0, 1) < self.epsilon:
-                a = _np.random.randint(self.A) # Explore action space
-            else:
-                a = _np.argmax(self.Q[s,:]) # Exploit learned values
-                
-            try:
-                s_new = self.R[a][s, :].argmax()
-                r_max = self.R[a][s, s_new]
-            except IndexError:
+            for iter_nb in range(self.max_iter):
+                if _np.random.uniform(0, 1) < self.epsilon:
+                    a = _np.random.randint(self.A) # Explore action space
+                else:
+                    a = _np.argmax(self.Q[s,:]) # Exploit learned values
+                    
                 try:
-                    s_new = s
-                    r_max = self.R[s, a]
+                    s_new = self.R[a][s, :].argmax()
+                    r_max = self.R[a][s, s_new]
                 except IndexError:
-                    s_new = s
-                    r_max = self.R[s]
-            
-            # Updating the value of Q
-            # Decaying update coefficient (1/sqrt(n+2)) can be changed
-            delta = r_max + self.discount * self.Q[s_new, :].max() - self.Q[s, a]
-            dQ = self.lr * delta
-            self.Q[s, a] = self.Q[s, a] + dQ
-
-            # current state is updated
-            s = s_new
-
-            # Computing and saving maximal values of the Q variation
-            discrepancy.append(_np.absolute(dQ))
+                    try:
+                        s_new = s
+                        r_max = self.R[s, a]
+                    except IndexError:
+                        s_new = s
+                        r_max = self.R[s]
+                
+                # Updating the value of Q
+                # Decaying update coefficient (1/sqrt(n+2)) can be changed
+                delta = r_max + self.discount * self.Q[s_new, :].max() - self.Q[s, a]
+                dQ = self.lr * delta
+                self.Q[s, a] = self.Q[s, a] + dQ
+    
+                # current state is updated
+                s = s_new
+    
+                # Computing and saving maximal values of the Q variation
+                discrepancy.append(_np.absolute(dQ))
 
             # Computing means all over maximal Q variations values
-            if len(discrepancy) == 100:
-                self.mean_discrepancy.append(_np.mean(discrepancy))
-                discrepancy = []
+            self.mean_discrepancy.append(_np.mean(discrepancy))
+            discrepancy = []
 
             # compute the value function and the policy
             self.V = self.Q.max(axis=1)
