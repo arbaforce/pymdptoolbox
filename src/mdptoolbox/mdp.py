@@ -1071,7 +1071,7 @@ class QLearning(MDP):
     """
 
     def __init__(self, transitions, reward, discount, n_episodes=1000, n_iter=1000,
-                 skip_check=False, learning_rate=0.1, epsilon = 0.1, exploration = 'exploiting'):
+                 skip_check=False, learning_rate=0.1, epsilon = 0.1):
         # Initialise a Q-learning MDP.
 
         # The following check won't be done in MDP()'s initialisation, so let's
@@ -1089,12 +1089,9 @@ class QLearning(MDP):
         self.P = self._computeTransition(transitions)
 
         self.R = reward
+        
         self.lr = learning_rate
-
         self.discount = discount
-        
-        self.exploration = exploration
-        
         self.epsilon = epsilon
 
         # Initialisations
@@ -1111,62 +1108,7 @@ class QLearning(MDP):
         for n in range(1, self.n_episodes + 1):
             # initial state choice
             s = _np.random.randint(0, self.S)
-
-#            # Action choice : greedy with increasing probability
-#            # probability 1-(1/log(n+2)) can be changed
-#            pn = _np.random.random()
-#            if pn < (1 - (1 / _math.log(n + 2))):
-#                # optimal_action = self.Q[s, :].max()
-#                a = self.Q[s, :].argmax()
-#            else:
-#                a = _np.random.randint(0, self.A)
-#
-#            # Simulating next state s_new and reward associated to <s,s_new,a>
-#            p_s_new = _np.random.random()
-#            p = 0
-#            s_new = -1
-#            while (p < p_s_new) and (s_new < (self.S - 1)):
-#                s_new = s_new + 1
-#                p = p + self.P[a][s, s_new]
-#
-#            try:
-#                r = self.R[a][s, s_new]
-#            except IndexError:
-#                try:
-#                    r = self.R[s, a]
-#                except IndexError:
-#                    r = self.R[s]
             
-#            for i in range(100):
-#                r_max = -sys.maxsize - 1
-#                s_new = 0
-#                a = 0
-#                
-#                for action in range(self.A):
-#                    p = 0;
-#                    state = 0
-#                    while (p < 1) and (state < self.S):
-#                        if self.P[action][s, state] != 0:
-#                            p += self.P[action][s, state]
-#                            r = 0
-#                            
-#                            try:
-#                                r = self.R[action][s, state]
-#                            except IndexError:
-#                                try:
-#                                    r = self.R[s, action]
-#                                except IndexError:
-#                                    r = self.R[s]
-#                            
-#                            if r_max < r:
-#                                r_max = r
-#                                s_new = state
-#                                a = action
-#                        state += 1
-                            
-    
-#            Q2 = self.Q[s,:] + _np.random.randn(1, self.A)*(1. / (n+1))
-#            a = _np.argmax(Q2)
             
             for iter_nb in range(self.max_iter):
                 if _np.random.uniform(0, 1) < self.epsilon:
@@ -1184,16 +1126,16 @@ class QLearning(MDP):
                     
                 
                 try:
-                    r_max = self.R[a][s, s_new]
+                    r = self.R[a][s, s_new]
                 except IndexError:
                     try:
-                        r_max = self.R[s_new, a]
+                        r = self.R[s_new, a]
                     except IndexError:
-                        r_max = self.R[s_new]
+                        r = self.R[s_new]
                 
                 # Updating the value of Q
                 # Decaying update coefficient (1/sqrt(n+2)) can be changed
-                delta = r_max + self.discount * self.Q[s_new, :].max() - self.Q[s, a]
+                delta = r + self.discount * self.Q[s_new, :].max() - self.Q[s, a]
                 dQ = self.lr * delta
                 self.Q[s, a] = self.Q[s, a] + dQ
     
