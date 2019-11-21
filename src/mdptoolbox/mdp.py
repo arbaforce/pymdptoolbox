@@ -1162,8 +1162,15 @@ class QLearning(MDP):
 #                        state += 1
                             
     
-            Q2 = self.Q[s,:] + _np.random.randn(1, self.A)*(1. / (n+1))
-            a = _np.argmax(Q2)
+#            Q2 = self.Q[s,:] + _np.random.randn(1, self.A)*(1. / (n+1))
+#            a = _np.argmax(Q2)
+            
+            epsilon = 0.1
+            if _np.random.uniform(0, 1) < epsilon:
+                a = _np.random.randint(self.A) # Explore action space
+            else:
+                a = _np.argmax(self.Q[s,:]) # Exploit learned values
+                
             try:
                 s_new = self.R[a][s, :].argmax()
                 r_max = self.R[a][s, s_new]
