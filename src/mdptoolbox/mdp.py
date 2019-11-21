@@ -1071,7 +1071,7 @@ class QLearning(MDP):
     """
 
     def __init__(self, transitions, reward, discount, n_iter=10000,
-                 skip_check=False, learning_rate=0.1, exploration = 'exploiting'):
+                 skip_check=False, learning_rate=0.1, epsilon = 0.1, exploration = 'exploiting'):
         # Initialise a Q-learning MDP.
 
         # The following check won't be done in MDP()'s initialisation, so let's
@@ -1093,6 +1093,8 @@ class QLearning(MDP):
         self.discount = discount
         
         self.exploration = exploration
+        
+        self.epsilon = epsilon
 
         # Initialisations
         self.Q = _np.zeros((self.S, self.A))
@@ -1165,8 +1167,7 @@ class QLearning(MDP):
 #            Q2 = self.Q[s,:] + _np.random.randn(1, self.A)*(1. / (n+1))
 #            a = _np.argmax(Q2)
             
-            epsilon = 0.1
-            if _np.random.uniform(0, 1) < epsilon:
+            if _np.random.uniform(0, 1) < self.epsilon:
                 a = _np.random.randint(self.A) # Explore action space
             else:
                 a = _np.argmax(self.Q[s,:]) # Exploit learned values
