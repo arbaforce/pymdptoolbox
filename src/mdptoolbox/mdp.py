@@ -1070,7 +1070,7 @@ class QLearning(MDP):
 
     """
 
-    def __init__(self, transitions, reward, discount, n_episodes=1000, n_iter=1000
+    def __init__(self, transitions, reward, discount, n_episodes=1000, n_iter=1000,
                  skip_check=False, learning_rate=0.1, epsilon = 0.1, exploration = 'exploiting'):
         # Initialise a Q-learning MDP.
 
