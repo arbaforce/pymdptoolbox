@@ -871,8 +871,8 @@ class PolicyIteration(MDP):
             nb_differences = (policy_history[i] != self.policy).sum()
             self.policy_curve.append(nb_differences)
             
-            mean_squared_difference = _np.mean(_np.square(value_history[i]-self.V))
-            self.value_curve.append(mean_squared_difference)
+            mean_value = _np.mean(value_history[i])
+            self.value_curve.append(mean_value)
             
             
         for i in self.return_numbers:
@@ -1502,8 +1502,8 @@ class ValueIteration(MDP):
             nb_differences = (policy_history[i] != self.policy).sum()
             self.policy_curve.append(nb_differences)
             
-            mean_squared_difference = _np.mean(_np.square(value_history[i]-self.V))
-            self.value_curve.append(mean_squared_difference)
+            mean_value = _np.mean(value_history[i])
+            self.value_curve.append(mean_value)
             
             
         for i in self.return_numbers:
