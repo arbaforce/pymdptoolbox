@@ -845,6 +845,8 @@ class PolicyIteration(MDP):
             # calculate in how many places does the old policy disagree with
             # the new policy
             n_different = (policy_next != self.policy).sum()
+            self.policy_curve.append(n_different)
+            self.value_curve.append(_np.mean(V_next))
                 
             # if verbose then continue printing a table
             if self.verbose:
@@ -866,13 +868,6 @@ class PolicyIteration(MDP):
                 value_history.append(self.V)
         
         self._endRun()
-        
-        for i in range(self.iter-1):
-            nb_differences = (policy_history[i] != self.policy).sum()
-            self.policy_curve.append(nb_differences)
-            
-            mean_value = _np.mean(value_history[i])
-            self.value_curve.append(mean_value)
             
             
         for i in self.return_numbers:
@@ -1475,9 +1470,14 @@ class ValueIteration(MDP):
             Vprev = self.V.copy()
 
             # Bellman Operator: compute policy and value functions
+            prev_policy = self.policy;
             self.policy, self.V = self._bellmanOperator()
             policy_history.append(self.policy)
             value_history.append(self.V)
+            
+            n_different = (prev_policy != self.policy).sum()
+            self.policy_curve.append(n_different)
+            self.value_curve.append(_np.mean(self.V))
 
             # The values, based on Q. For the function "max()": the option
             # "axis" means the axis along which to operate. In this case it
@@ -1497,14 +1497,6 @@ class ValueIteration(MDP):
                 break
             
         self._endRun()
-        
-        for i in range(self.iter-1):
-            nb_differences = (policy_history[i] != self.policy).sum()
-            self.policy_curve.append(nb_differences)
-            
-            mean_value = _np.mean(value_history[i])
-            self.value_curve.append(mean_value)
-            
             
         for i in self.return_numbers:
             if i < self.iter-2:
