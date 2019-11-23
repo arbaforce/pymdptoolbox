@@ -1468,9 +1468,6 @@ class ValueIteration(MDP):
         
         policy_history = []
         value_history = []
-        
-        policy_history.append(self.policy)
-        value_history.append(self.V)
 
         while True:
             self.iter += 1
