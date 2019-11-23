@@ -841,18 +841,14 @@ class PolicyIteration(MDP):
             
             # calculate in how many places does the old policy disagree with
             # the new policy
-            min_n_different = sys.maxsize
-            for p in policy_history:
-                n_different = (policy_next != p).sum()
-                if n_different < min_n_different:
-                    min_n_different = n_different
+            n_different = (policy_next != self.policy).sum()
                 
             # if verbose then continue printing a table
             if self.verbose:
                 _printVerbosity(self.iter, n_different)
             # Once the policy is unchanging of the maximum number of
             # of iterations has been reached then stop
-            if min_n_different == 0:
+            if n_different == 0:
                 if self.verbose:
                     print(_MSG_STOP_UNCHANGING_POLICY)
                 break
@@ -865,6 +861,8 @@ class PolicyIteration(MDP):
                 self.V = V_next
                 policy_history.append(self.policy)
                 value_history.append(self.V)
+        
+        self._endRun()
         
         for i in range(self.iter-1):
             nb_differences = (policy_history[i] != self.policy).sum()
@@ -881,7 +879,6 @@ class PolicyIteration(MDP):
             else:
                 break;
 
-        self._endRun()
 
 
 class PolicyIterationModified(PolicyIteration):
@@ -1109,8 +1106,8 @@ class QLearning(MDP):
             # initial state choice
             s = _np.random.randint(0, self.S)
             
-            
             for iter_nb in range(self.max_iter):
+                
                 if _np.random.uniform(0, 1) < self.epsilon:
                     a = _np.random.randint(self.A) # Explore action space
                 else:
@@ -1496,6 +1493,8 @@ class ValueIteration(MDP):
                     print(_MSG_STOP_MAX_ITER)
                 break
             
+        self._endRun()
+        
         for i in range(self.iter-1):
             nb_differences = (policy_history[i] != self.policy).sum()
             self.policy_curve.append(nb_differences)
@@ -1511,7 +1510,6 @@ class ValueIteration(MDP):
             else:
                 break;
 
-        self._endRun()
 
 
 class ValueIterationGS(ValueIteration):
