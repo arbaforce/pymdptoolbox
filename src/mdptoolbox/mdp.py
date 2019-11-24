@@ -1066,7 +1066,8 @@ class QLearning(MDP):
     """
 
     def __init__(self, transitions, reward, discount, n_episodes=1000, n_iter=1000,
-                 skip_check=False, learning_rate=0.1, epsilon = 0.1):
+                 skip_check=False, learning_rate=0.1, epsilon = 0.1, state_start = None,
+                 state_end = None):
         # Initialise a Q-learning MDP.
 
         # The following check won't be done in MDP()'s initialisation, so let's
@@ -1088,21 +1089,31 @@ class QLearning(MDP):
         self.lr = learning_rate
         self.discount = discount
         self.epsilon = epsilon
+        
+        self.state_start = state_start;
+        self.state_end = state_end;
+        
+        self.policy = _np.zeros(self.S)
+        
+        self.policy_curve = []
+        self.value_curve = []
 
         # Initialisations
         self.Q = _np.zeros((self.S, self.A))
-        self.mean_discrepancy = []
+        self.accumulated_value = []
 
     def run(self):
         # Run the Q-learning algoritm.
-        discrepancy = []
+        value = 0
 
         self.time = _time.time()
 
-    
         for n in range(1, self.n_episodes + 1):
             # initial state choice
-            s = _np.random.randint(0, self.S)
+            if self.state_start is None:
+                s = _np.random.randint(0, self.S)
+            else:
+                s = self.state_start;
             
             for iter_nb in range(self.max_iter):
                 
@@ -1138,15 +1149,24 @@ class QLearning(MDP):
                 s = s_new
     
                 # Computing and saving maximal values of the Q variation
-                discrepancy.append(_np.absolute(dQ))
+                value += r;
+                
+                #break end state is reached
+                if s == self.state_end:
+                    break;
 
             # Computing means all over maximal Q variations values
-            self.mean_discrepancy.append(_np.mean(discrepancy))
-            discrepancy = []
+            self.accumulated_value.append(value)
+            value = 0
 
             # compute the value function and the policy
+            prev_policy = self.policy
             self.V = self.Q.max(axis=1)
             self.policy = self.Q.argmax(axis=1)
+            
+            n_different = (prev_policy != self.policy).sum()
+            self.policy_curve.append(n_different)
+            self.value_curve.append(_np.mean(self.V))
 
         self._endRun()
 
