@@ -1116,6 +1116,9 @@ class QLearning(MDP):
                 s = self.state_start;
             
             for iter_nb in range(self.max_iter):
+                #break end state is reached
+                if s == self.state_end:
+                    break;
                 
                 if _np.random.uniform(0, 1) < self.epsilon:
                     a = _np.random.randint(self.A) # Explore action space
@@ -1151,9 +1154,6 @@ class QLearning(MDP):
                 # Computing and saving maximal values of the Q variation
                 value += r;
                 
-                #break end state is reached
-                if s == self.state_end:
-                    break;
 
             # Computing means all over maximal Q variations values
             self.accumulated_value.append(value)
